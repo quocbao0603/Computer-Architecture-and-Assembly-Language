@@ -1,25 +1,11 @@
-#include "QInt.h"
+﻿#include "QInt.h"
 
-//Khoa's part
 
 string QInt::toBinary(){
-	string r[MAX_NUM];
-	
 	string result;
 	int n, number_bit = 0;
-	for (int i = 0; i < MAX_NUM; i++) {
-		n = data[i];
-		while (n != 0) {
-			r[i] = (n % 2 == 0 ? "0" : "1") + r[i]; 
-			n /= 2; 
-			number_bit++;
-		}
-		/*
-		if (number_bit < 32) {
-			r[i] = 
-		}
-		*/
-		result += r[i];
+	for (int i = 0; i < QINT_SIZE; i++) {
+		result.insert(result.end(),1 , (char)(Get_bit(i) + 48));
 	}
 	return result;
 }
@@ -27,7 +13,7 @@ string QInt::toBinary(){
 void QInt::assign(string bin){
 	int lastPos = 0;
 	for (int i = 0; i < MAX_NUM; i++) {
-		lastPos = i * INT_SIZE - 1;
+		lastPos = (i + 1) * INT_SIZE - 1;
 		data[i] = 0;
 		for (int j = i * INT_SIZE; j < (i + 1) * INT_SIZE; j++) {
 			data[i] += (bin[j] - 48)*pow(2, (lastPos - j));
@@ -88,7 +74,7 @@ QInt QInt::operator*(QInt const & a){
 			A = A - *this;
 		}
 		Q >> 1;									//Dịch phải Q 1 bit.
-		if (A.lastBit == 1) {					//Lấy bit cuối của A làm bit đầu của Q.
+		if (A.lastBit() == 1) {					//Lấy bit cuối của A làm bit đầu của Q.
 			Q.data[0] = Q.data[0] | INT_MIN;
 		}
 		else {
@@ -170,50 +156,17 @@ QInt & QInt::operator=(QInt const & a){
 	return *this;
 }
 
-QInt QInt::operator~(){
-	for (int i = 0; i < MAX_NUM; i++)
-		this->data[i] = ~(this->data[i]);
-}
-
-
-QInt::QInt(){
-	for (int i = 0; i < MAX_NUM; i++)
-		data[i] = 0;
-}
-
-QInt::QInt(QInt const & a){
-	for (int i = 0; i < MAX_NUM; i++)
-		data[i] = a.data[i];
-}
-
-QInt::QInt(int k){
-	data[3] = k;
-	if (k < 0) {
-		data[0] = data[1] = data[2] = INT_MIN;
-	}
-}
-
-
-QInt::~QInt()
-{
-}
-
-
-
-
-//Bảo's part
-//Lấy bit thứ k
 int QInt::Get_bit(int k) {
 	int i_data = k / 32;
 	int k_data = k % 32;
-	int res = ((this->data[i_data]) >> k_data) & 1;
+	int res = ((this->data[i_data]) >> (INT_SIZE - k_data - 1)) & 1;
 	return res;
 }
 //Bật bit thứ k
 void QInt::Turn_on_bit(int k) {
 	int i_data = k / 32;
 	int k_data = k % 32;
-	this->data[i_data] |= (1 << k_data);
+	this->data[i_data] |= (1 << (INT_SIZE - k_data - 1));
 }
 
 // Toán tử AND
@@ -241,7 +194,7 @@ QInt QInt::operator ^ (QInt other) {
 	QInt res; //Biến lưu kết quả
 	//lần lượt duyệt qua từng cụm 32 bit của this, XOR với từng cụm 32 bit của other.
 	for (int i = 0; i < MAX_NUM; i++) {
-		res.data[i] = this->data[i] ^ other.data[i]; 
+		res.data[i] = this->data[i] ^ other.data[i];
 	}
 	return res;
 }
@@ -268,7 +221,7 @@ QInt QInt::operator >> (int k) {
 	return res;
 }
 // Dịch bit trái (dịch số học) của một số QInt
-QInt QInt::operator << (int k){
+QInt QInt::operator << (int k) {
 	QInt res; //khởi tạo kết quả: res = 0
 	//Nếu dịch quá nhiều thì kết quả = 0
 	//if (k >= 128) return res;
@@ -278,4 +231,29 @@ QInt QInt::operator << (int k){
 		if (ith_bit == 1)res.Turn_on_bit(i);
 	}
 	return res;
+}
+
+QInt::QInt(){
+	for (int i = 0; i < MAX_NUM; i++)
+		data[i] = 0;
+}
+
+QInt::QInt(QInt const & a){
+	for (int i = 0; i < MAX_NUM; i++)
+		data[i] = a.data[i];
+}
+
+QInt::QInt(int k){
+	data[3] = k;
+	if (k < 0) {
+		data[0] = data[1] = data[2] = -1;
+	}
+	else {
+		data[0] = data[1] = data[2] = 0;
+	}
+}
+
+
+QInt::~QInt()
+{
 }
