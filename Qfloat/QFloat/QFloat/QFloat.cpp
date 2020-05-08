@@ -16,6 +16,8 @@ QFloat::QFloat(const QFloat &other) {
 
 QFloat::QFloat(const string &num) {
 	for (int i = 0; i < MAX_NUM; i++) data[i] = 0;
+	//Xét 0
+	if (num == "0") return;
 	//Xét số inf
 	if (num == "Inf" || num == "-Inf") {
 		for (int i = MAX_BIT - 2; i >= MAX_BIT - 1 - Exponent; i--) {
@@ -102,8 +104,6 @@ bool QFloat::Is_NaN() {
 //Phần xuất
 //convert QFloat to bit String
 string QFloat::To_bit_string() {
-	//debug
-	for (int i = 0; i < MAX_NUM; i++)cout << this->data[i] << " ";cout << "\n";
 	if (Is_Inf()) {
 		if (Is_Negative()) return "-Inf";
 		return "Inf";
@@ -160,9 +160,8 @@ string QFloat::To_bit_string() {
 	if (sign) s = '-' + s;
 	return s;
 }
-//convert to 10s
-
-
+//convert QFloat to Decimal String
+string QFloat::To_dec_string();
 
 
 //Phần nhập
@@ -171,7 +170,7 @@ string From_decimal_string_to_bit_string(string num, int &power) {
 	int pos = num.find('.');
 	//tách phần nguyên và thực
 	string before, after;
-	if (pos == num.size()) {
+	if (pos == -1) {
 		before = num;
 		after = "0";
 	}
@@ -180,21 +179,21 @@ string From_decimal_string_to_bit_string(string num, int &power) {
 		after = num.substr(pos);
 		after = '0' + after;
 	}
-
+	
 	// Chuyển string của phần nguyên sang binary
 	before = Int_to_binary(before);
+	//debug(before);
+	//debug(power);
 	string res = Fraction_to_binary(before, after, power);
-	while (res[0] == '0') res.erase(0, 1);
-	while (res.size() < MAX_BIT - 1 - Exponent) res.push_back('0');
+	//debug(res);
 	return res;
 }
 
 //hàm đọc và xuất
 // Đọc số QFloat dưới dạng chuỗi thập phân
-QFloat& QFloat::Scan_Dec_string_to_QFloat(string num) {
+QFloat QFloat::Scan_Dec_string_to_QFloat(string num) {
 	// Kiểm tra trường hợp đặc biệt
-	//debug
-
+	
 	if (num == "Inf" || num == "-Inf") {
 		for (int i = MAX_BIT - 2; i >= MAX_BIT - 1 - Exponent; i--) {
 			Turn_on_bit(i);
@@ -215,26 +214,29 @@ QFloat& QFloat::Scan_Dec_string_to_QFloat(string num) {
 		*this = QFloat();
 		return *this;
 	}
-
+	
 	//khởi tạo tất cả bit = 0
-	for (int i = 0; i < MAX_BIT; i++) {
+	for (int i = 0; i < MAX_NUM; i++) {
 		data[i] = 0;
 	}
-
+	
 	// Xét số âm
 	if (num[0] == '-') {
 		Turn_on_bit(MAX_BIT - 1);
 		num.erase(0, 1);
 	}
+
+
 	
 	// Tìm dãy bit của phần trị và phần mũ
-	int exp;
-	string Bit_string = From_decimal_string_to_bit_string(num, exp);
-
+	int power = 0;
+	string Bit_string = From_decimal_string_to_bit_string(num, power);
+	//debug(Bit_string);
+	//debug(power);
 	// Gán phần mũ
 	for (int i = MAX_BIT - 1 - Exponent; i <= MAX_BIT - 2; i++) {
-		Set_bit(i, (exp & 1));
-		exp >>= 1;
+		Set_bit(i, (power & 1));
+		power >>= 1;
 	}
 		
 
@@ -242,19 +244,66 @@ QFloat& QFloat::Scan_Dec_string_to_QFloat(string num) {
 	int count = 0;
 	for (int i = MAX_BIT - 1 - Exponent - 1; i >= 0; i--)
 		Set_bit(i, Bit_string[count++] - '0');
-
+	//for (int i = 0; i < 4; i++)debug(data[i]);
 	return (*this);
+}
+
+// Đọc số QFloat dưới dạng chuỗi nhị phân
+QFloat QFloat::Scan_Bin_string_to_QFloat(string n) {
+	if (n == "0" || n == "Inf" || n == "-Inf" || n == "NaN") return QFloat(n);
+
+	//Xét bit dấu
+	if (n[0] == '-')Turn_on_bit(MAX_BIT - 1);
+	//Tách phần nguyên và thập phân
+	string before, after;
+	int pos = n.find('.');
+	if (pos == -1) {
+		before = n;
+	}
+	else {
+		before = n.substr(0, pos);
+		after = n.substr(pos + 1);
+	}
+	//xoá số 0 đầu
+	while (before.size() > 1 && before[0] == '0')before.erase(before.begin());
+	//Tìm số mũ
+	int power = before.size() - 1 + biased;
+	// nếu phần nguyên = 0 => chuẩn hoá
+	if (before == "") {
+		while (after.size() > 0 && after[0] == '0' && power > 1) {
+			power--;
+			after.erase(after.begin());
+		}
+		//Trường hợp dạng không chuẩn
+		if (power == 1) {
+			while (after.size() > 112 + 1)after.pop_back();
+		}
+	}
+	
+	//Ghép lại và chuẩn hoá
+	string res = before + after;
+	while (res.size() < 112)res += '0';
+
+	//Set bit phần mũ
+	for (int i = MAX_BIT - 1 - Exponent; i <= MAX_BIT - 2; i++) {
+		if (power & 1 == 0)Turn_on_bit(i);
+		power >>= 1;
+	}	
+
+	//Set bit phần trị
+	int count = 0;
+	for (int i = MAX_BIT - 1 - Exponent - 1; i >= 0; i--) {
+		Set_bit(i, res[count++] - '0');
+	}	
+	return *this;
 }
 
 //Đọc số QFloat từ string 
 QFloat QFloat::Scan_QFloat(string n, int b) {
-	//if (b == 2) 
-	return QFloat().Scan_Dec_string_to_QFloat(n);
-	//else if (b == "10") return QFloat().strDecToQFloat(n);
+	if (b == 10) return QFloat().Scan_Dec_string_to_QFloat(n);
+	if (b == 2) return QFloat().Scan_Bin_string_to_QFloat(n);
 }
 //in số QFloat he nhi phan
 void Print_QFloat(QFloat num) {
-	//debug
-	for (int i = 0; i < MAX_NUM; i++)cout << num.data[i] << " ";cout << "\n";
-	cout << num.To_bit_string() << '\n';
+	cout << num.To_dec_string() << '\n';
 }

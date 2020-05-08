@@ -9,6 +9,8 @@
 #include <vector>
 #include <string>
 
+#define debug(a) cout << #a << ": " << a << endl
+#define ALL(a) a.begin(),a.end()
 using namespace std;
 
 #define MAX_BIT 128
@@ -46,7 +48,9 @@ public:
 
 	// scanf and printf 
 	QFloat Scan_QFloat(string, int);// Đọc số QFloat hệ thập phân or nhị phân
-	QFloat& Scan_Dec_string_to_QFloat(string);
+	QFloat Scan_Dec_string_to_QFloat(string);
+	QFloat Scan_Bin_string_to_QFloat(string);
+
 	friend void Print_QFloat(QFloat); // In số QFloat
 	//string BinToDec();
 	//string DecToBin(QFloat x);

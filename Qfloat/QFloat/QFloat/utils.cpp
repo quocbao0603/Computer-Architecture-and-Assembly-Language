@@ -20,64 +20,32 @@ string Div2(string num) {
 
 // Nhân đôi số thực
 string Mul2(string number) {
-	int len = number.length();
-	string result;
-	int k = number.find('.');
-	int carry = 0, tmp;
-
-	if (k != string::npos) {
-		// Nhân 2 với phần thập phân
-		for (int i = len - 1; i > k; --i) {
-			tmp = (number[i] - '0') * 2 + carry;
-			if (tmp >= 10) {
-				result.insert(result.begin(), char(tmp - 10 + '0'));
-				carry = 1;
-			}
-			else {
-				result.insert(result.begin(), char(tmp + '0'));
-				carry = 0;
-			}
-		}
-		result.insert(result.begin(), '.');
-
-		// Nhân 2 với phần nguyên trước dấu '.'
-		for (int i = k - 1; i >= 0; --i) {
-			tmp = (number[i] - '0') * 2 + carry;
-			if (tmp >= 10) {
-				result.insert(result.begin(), char(tmp - 10 + '0'));
-				carry = 1;
-			}
-			else {
-				result.insert(result.begin(), char(tmp + '0'));
-				carry = 0;
-			}
-		}
+	vector <int> a, res;
+	//Bỏ phần X,..... lấy từ sau dấu phẩy
+	for (int i = 2; i < number.size(); ++i) a.push_back(number[i] - '0');
+	res.resize(a.size());
+	reverse(a.begin(), a.end());
+	int remain = 0;
+	for (int i = 0; i < a.size(); ++i) {
+		res[i] += a[i] * 2 + remain;
+		remain = res[i] / 10;
+		res[i] %= 10;
 	}
-	else {
-		for (int i = len - 1; i >= 0; --i) {
-			tmp = (number[i] - 48) * 2 + carry;
-			if (tmp >= 10) {
-				result.insert(result.begin(), char(tmp - 10 + '0'));
-				carry = 1;
-			}
-			else {
-				result.insert(result.begin(), char(tmp + '0'));
-				carry = 0;
-			}
-		}
-	}
-	if (carry == 1) result.insert(result.begin(), '1');
-	return result;
+	string ans;
+	if (remain == 0)ans = "0."; else ans = "1.";
+	for (int i = res.size() - 1; i >= 0; --i) ans += (res[i] + '0');
+	while (ans.back() == '0')ans.pop_back();
+	return ans;
 }
 
 // chuyển đổi phần nguyên từ xâu thập phân thành xâu nhị phân
 string Int_to_binary(string num) {
-	string ans = "0";
+	string ans = "";
 	string tmp = num;
 	while (tmp != "0") {
 		int bit = (tmp.back() - '0') % 2;
-		if (bit == 1) ans.push_back(1);
-		else ans.push_back(0);
+		if (bit == 1) ans.push_back('1');
+		else ans.push_back('0');
 		tmp = Div2(tmp);
 	}
 	reverse(ans.begin(), ans.end());
@@ -87,11 +55,16 @@ string Int_to_binary(string num) {
 // chuyển đổi phần thập phân sau dấu phẩy từ xâu thập phân thành xâu nhị phân
 string Fraction_to_binary(string before, string after, int &power) {
 	string fractionBit = "";
-	
-	if (before != "0") {
+	int flag = 1;
+	if (before != "") {
 		//số dạng xxx.010101.....
 		//xxx dạng nhị phân
-		power = before.size() - 1 + biased;
+		//debug(flag);
+		//debug(after);
+		//debug(flag);
+		// debug(before);
+		power = biased + int(before.size()) - 1;
+		//debug(power);
 		for (int i = 0; i < 112 - (before.size() - 1); i++) {
 			after = Mul2(after);
 			fractionBit.push_back(after[0]);
@@ -99,6 +72,7 @@ string Fraction_to_binary(string before, string after, int &power) {
 		}
 	}
 	else {
+		//chuẩn hoá số dạng 0,000.....
 		int cnt = 0;
 		
 		while (cnt < biased) {
@@ -131,10 +105,12 @@ string Fraction_to_binary(string before, string after, int &power) {
 			return res;
 		}
 	}
-
+	//debug(before);
+	//debug(fractionBit);
 	string res = before + fractionBit;
 	while (res[0] == '0') res.erase(0, 1);
-	while (res.size() < 113) res.push_back('0');
+	while (res.size() < 112) res.push_back('0');
+	//debug(res);
 	return res;
 }
 //End
