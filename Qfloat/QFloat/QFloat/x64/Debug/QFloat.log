@@ -1,9 +1,2 @@
-﻿  QFloat.cpp
-c:\users\hp\documents\github\ktmt\qfloat\qfloat\qfloat\qfloat.cpp(122): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\hp\documents\github\ktmt\qfloat\qfloat\qfloat\qfloat.cpp(144): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\hp\documents\github\ktmt\qfloat\qfloat\qfloat\qfloat.cpp(171): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\hp\documents\github\ktmt\qfloat\qfloat\qfloat\qfloat.cpp(260): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\hp\documents\github\ktmt\qfloat\qfloat\qfloat\qfloat.cpp(271): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\hp\documents\github\ktmt\qfloat\qfloat\qfloat\qfloat.cpp(290): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\hp\documents\github\ktmt\qfloat\qfloat\qfloat\qfloat.cpp(309): warning C4715: 'QFloat::Scan_QFloat': not all control paths return a value
+﻿  Source.cpp
   QFloat.vcxproj -> C:\Users\HP\Documents\GitHub\KTMT\Qfloat\QFloat\x64\Debug\QFloat.exe

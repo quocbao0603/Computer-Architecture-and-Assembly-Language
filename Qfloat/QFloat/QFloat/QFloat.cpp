@@ -161,7 +161,9 @@ string QFloat::To_bit_string() {
 	return s;
 }
 //convert QFloat to Decimal String
-string QFloat::To_dec_string();
+string QFloat::To_dec_string() {
+	return "";
+};
 
 
 //Phần nhập
@@ -305,5 +307,5 @@ QFloat QFloat::Scan_QFloat(string n, int b) {
 }
 //in số QFloat he nhi phan
 void Print_QFloat(QFloat num) {
-	cout << num.To_dec_string() << '\n';
+	cout << num.To_bit_string() << '\n';
 }
